@@ -1,0 +1,14 @@
+{
+  "name": "constella",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npm run dev -w server & npm run dev -w web",
+    "start": "npm run start -w server"
+  },
+  "workspaces": [
+    "server",
+    "web"
+  ]
+}
+

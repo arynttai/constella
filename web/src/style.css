@@ -1,0 +1,511 @@
+:root {
+  --bg: #070912;
+  --panel: rgba(255, 255, 255, 0.06);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.65);
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #8b5cf6;
+  --core: #60a5fa;
+  --bridge: #f472b6;
+  --shadow: 0 16px 50px rgba(0, 0, 0, 0.45);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: radial-gradient(1200px 700px at 20% 10%, rgba(139, 92, 246, 0.25), transparent 60%),
+    radial-gradient(900px 600px at 80% 40%, rgba(96, 165, 250, 0.18), transparent 55%),
+    radial-gradient(900px 600px at 60% 95%, rgba(244, 114, 182, 0.14), transparent 55%), var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  height: 100%;
+}
+
+.sidebar {
+  border-right: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+  padding: 18px 16px 16px;
+  overflow: auto;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), transparent 40%),
+    linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(96, 165, 250, 0.85));
+  box-shadow: 0 14px 40px rgba(139, 92, 246, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+.logo::after {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  background: conic-gradient(from 180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+  animation: spin 4.5s linear infinite;
+  opacity: 0.6;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.brand h1 {
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+.brand .subtitle {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-top: 3px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.card + .card {
+  margin-top: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+select,
+input[type="number"],
+input[type="range"],
+button {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  padding: 10px 10px;
+  outline: none;
+}
+select:focus,
+input:focus {
+  border-color: rgba(139, 92, 246, 0.65);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(96, 165, 250, 0.85));
+  border: 0;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+button:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+button.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-weight: 600;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.pill {
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: var(--muted);
+}
+.pill strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.metric {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 10px;
+}
+.metric .k {
+  font-size: 11px;
+  color: var(--muted);
+}
+.metric .v {
+  font-size: 16px;
+  margin-top: 4px;
+  font-weight: 750;
+}
+
+.smallNote {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.10);
+  margin: 10px 0;
+}
+
+.log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.4;
+  max-height: 240px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+.teamsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.teamItem {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.teamItem:hover {
+  transform: translateY(-1px);
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(255, 255, 255, 0.07);
+}
+.teamItem.active {
+  border-color: rgba(96, 165, 250, 0.65);
+  background: rgba(96, 165, 250, 0.10);
+}
+.teamHdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.teamTitle {
+  font-weight: 800;
+}
+.tag {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.76);
+  background: rgba(0, 0, 0, 0.20);
+}
+.tag.core {
+  border-color: rgba(96, 165, 250, 0.55);
+}
+.tag.bridge {
+  border-color: rgba(244, 114, 182, 0.55);
+}
+.teamPeople {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.personRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.82);
+}
+.personRow .meta {
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 11px;
+}
+.personRow .badges {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.badge {
+  font-size: 10.5px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.72);
+}
+.badge.core {
+  border-color: rgba(96, 165, 250, 0.6);
+  color: rgba(96, 165, 250, 0.95);
+}
+.badge.bridge {
+  border-color: rgba(244, 114, 182, 0.6);
+  color: rgba(244, 114, 182, 0.95);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+}
+.statusDot.ok {
+  background: rgba(34, 197, 94, 0.95);
+}
+.statusDot.warn {
+  background: rgba(245, 158, 11, 0.95);
+}
+.statusDot.bad {
+  background: rgba(239, 68, 68, 0.95);
+}
+
+.main {
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tabBtn {
+  width: auto;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font-weight: 650;
+}
+.tabBtn.active {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+.table th,
+.table td {
+  padding: 8px 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: left;
+  vertical-align: top;
+}
+.table th {
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.20);
+  position: sticky;
+  top: 0;
+}
+.table tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+.tiny {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.62);
+}
+.btnMini {
+  width: auto;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.inputMini {
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 10px;
+}
+
+.csvBox {
+  min-height: 110px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.86);
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11.5px;
+  outline: none;
+  resize: vertical;
+}
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  pointer-events: none;
+}
+.hud .hint {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.legend {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 12px;
+}
+.legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-right: 6px;
+}
+.legend .item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toast {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  max-width: 460px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast .t {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 10px 12px;
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12.5px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.32);
+}
+.toast strong {
+  color: rgba(255, 255,  255, 0.95);
+}
+
+@media (max-width: 1020px) {
+  body {
+    overflow: auto;
+  }
+  .app {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100%;
+  }
+  .main {
+    height: 68vh;
+  }
+}

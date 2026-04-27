@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Constella — Team Matching</title>
+    <style>
+      :root {
+        --bg: #070912;
+        --panel: rgba(255, 255, 255, 0.06);
+        --panel2: rgba(255, 255, 255, 0.09);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.65);
+        --line: rgba(255, 255, 255, 0.12);
+        --accent: #8b5cf6;
+        --good: #22c55e;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+        --core: #60a5fa;
+        --bridge: #f472b6;
+        --cardRadius: 14px;
+        --shadow: 0 16px 50px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 700px at 20% 10%, rgba(139, 92, 246, 0.25), transparent 60%),
+          radial-gradient(900px 600px at 80% 40%, rgba(96, 165, 250, 0.18), transparent 55%),
+          radial-gradient(900px 600px at 60% 95%, rgba(244, 114, 182, 0.14), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+        overflow: hidden;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        height: 100%;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+        padding: 18px 16px 16px;
+        overflow: auto;
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), transparent 40%),
+          linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(96, 165, 250, 0.85));
+        box-shadow: 0 14px 40px rgba(139, 92, 246, 0.25);
+        position: relative;
+        overflow: hidden;
+      }
+      .logo::after {
+        content: "";
+        position: absolute;
+        inset: -20px;
+        background: conic-gradient(from 180deg, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.0));
+        animation: spin 4.5s linear infinite;
+        opacity: 0.6;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .brand h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .brand .subtitle {
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 3px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: var(--cardRadius);
+        box-shadow: var(--shadow);
+        padding: 14px;
+      }
+      .card + .card {
+        margin-top: 12px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      select,
+      input[type="number"],
+      input[type="range"],
+      button {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--text);
+        padding: 10px 10px;
+        outline: none;
+      }
+      select:focus,
+      input:focus {
+        border-color: rgba(139, 92, 246, 0.65);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
+      }
+
+      button {
+        cursor: pointer;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(96, 165, 250, 0.85));
+        border: 0;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+        transition: transform 120ms ease, filter 120ms ease;
+      }
+      button:hover {
+        filter: brightness(1.05);
+        transform: translateY(-1px);
+      }
+      button.secondary {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-weight: 600;
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .pillRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .pill {
+        padding: 6px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pill strong {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .metric {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 12px;
+        padding: 10px;
+      }
+      .metric .k {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .metric .v {
+        font-size: 16px;
+        margin-top: 4px;
+        font-weight: 750;
+      }
+
+      .log {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.4;
+        max-height: 240px;
+        overflow: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(0, 0, 0, 0.25);
+        padding: 10px;
+      }
+
+      .main {
+        position: relative;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .hud {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        pointer-events: none;
+      }
+      .hud .hint {
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 12px;
+        backdrop-filter: blur(10px);
+      }
+
+      .legend {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 12px;
+      }
+      .legend .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+        margin-right: 6px;
+      }
+      .legend .item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .toast {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        max-width: 460px;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast .t {
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 14px;
+        padding: 10px 12px;
+        backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 12.5px;
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.32);
+      }
+      .t strong {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .smallNote {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.10);
+        margin: 10px 0;
+      }
+
+      @media (max-width: 1020px) {
+        body {
+          overflow: auto;
+        }
+        .app {
+          grid-template-columns: 1fr;
+          height: auto;
+          min-height: 100%;
+        }
+        .main {
+          height: 68vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Constella</h1>
+            <div class="subtitle">Интеллектуальное формирование команд как “созвездий”</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <div>
+              <label for="strategy">Стратегия</label>
+              <select id="strategy">
+                <option value="conservative">Консервативная</option>
+                <option value="experimental" selected>Экспериментальная</option>
+                <option value="chaotic">Хаотическая</option>
+              </select>
+            </div>
+            <div>
+              <label for="teamSize">Размер команды</label>
+              <input id="teamSize" type="number" min="3" max="8" value="5" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <label for="rt">Real-time перерасчет (симуляция)</label>
+          <input id="rt" type="range" min="0" max="1" step="1" value="1" />
+          <div class="smallNote" id="rtLabel">Включено: каждые ~2.5s меняются данные и идет мягкий рематч.</div>
+
+          <div class="divider"></div>
+
+          <div class="actions">
+            <button id="run">Сформировать команды</button>
+            <button class="secondary" id="shuffle">Новые демо-данные</button>
+          </div>
+
+          <div class="pillRow" aria-label="Критерии">
+            <div class="pill"><strong>ядро</strong>: 2–3 знакомых</div>
+            <div class="pill"><strong>bridges</strong>: 1–2 “моста”</div>
+            <div class="pill"><strong>баланс</strong>: выравнивание</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="metrics">
+            <div class="metric">
+              <div class="k">Команд</div>
+              <div class="v" id="mTeams">—</div>
+            </div>
+            <div class="metric">
+              <div class="k">Участников</div>
+              <div class="v" id="mPeople">—</div>
+            </div>
+            <div class="metric">
+              <div class="k">Средн. инновационность</div>
+              <div class="v" id="mNovelty">—</div>
+            </div>
+            <div class="metric">
+              <div class="k">Дисбаланс навыков</div>
+              <div class="v" id="mBalance">—</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="smallNote">
+            Наведите курсор на “звезду”, чтобы увидеть профиль. Ядра — плотные группы, мосты — участники, которые
+            соединяют разные кластеры (город/универ/роль/стиль).
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="font-weight:700;">События / объяснимость</div>
+            <button class="secondary" id="clearLog" style="width:auto;padding:8px 10px;">Очистить</button>
+          </div>
+          <div class="divider"></div>
+          <div class="log" id="log" aria-live="polite"></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <canvas id="c"></canvas>
+        <div class="hud">
+          <div class="hint">Перетаскивание: выключено (демо-режим). Наведение показывает карточку.</div>
+        </div>
+        <div class="legend">
+          <span class="item"><span class="dot" style="background:var(--core)"></span>ядро</span>
+          <span class="item"><span class="dot" style="background:var(--bridge)"></span>bridge</span>
+          <span class="item"><span class="dot" style="background:rgba(255,255,255,0.65)"></span>обычный</span>
+        </div>
+        <div class="toast" id="toast"></div>
+      </main>
+    </div>
+
+    <script>
+      // Constella: прототип. Один файл. Без зависимостей.
+      // Модель: participants = nodes, edges = связи "работали вместе" и "одно сообщество".
+      // Матчинг: ядра (сильные связи) -> мосты (межкластерность/различие/структурные дыры) -> баланс навыков.
+
+      const $ = (id) => document.getElementById(id);
+      const logEl = $("log");
+      const toastEl = $("toast");
+
+      function now() {
+        const d = new Date();
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      }
+
+      function pushLog(msg) {
+        const line = `[${now()}] ${msg}`;
+        const atBottom = logEl.scrollTop + logEl.clientHeight >= logEl.scrollHeight - 6;
+        logEl.textContent = (logEl.textContent ? logEl.textContent + "\n" : "") + line;
+        if (atBottom) logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function toast(msg) {
+        const t = document.createElement("div");
+        t.className = "t";
+        t.innerHTML = msg;
+        toastEl.appendChild(t);
+        setTimeout(() => {
+          t.style.opacity = "0";
+          t.style.transform = "translateY(-2px)";
+          t.style.transition = "opacity 250ms ease, transform 250ms ease";
+        }, 1600);
+        setTimeout(() => t.remove(), 2100);
+      }
+
+      // ---- Демо-данные (генератор) ----
+      const ROLE_POOL = ["dev", "design", "data", "pm", "biz"];
+      const CITY_POOL = ["Москва", "СПб", "Казань", "Новосибирск", "Екатеринбург", "Алматы"];
+      const UNI_POOL = ["ИТМО", "МФТИ", "ВШЭ", "КФУ", "НГУ", "УрФУ", "Назарбаев Университет"];
+      const COMMUNITY_POOL = ["GDG", "DesignOps", "AI Club", "Startup Lab", "GameDev", "Product School"];
+
+      const ROLE_COLOR = {
+        dev: "#60a5fa",
+        design: "#f472b6",
+        data: "#34d399",
+        pm: "#f59e0b",
+        biz: "#a78bfa",
+      };
+
+      function mulberry32(seed) {
+        let t = seed >>> 0;
+        return function () {
+          t += 0x6d2b79f5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function pick(rng, arr) {
+        return arr[Math.floor(rng() * arr.length)];
+      }
+
+      function clamp01(x) {
+        return Math.max(0, Math.min(1, x));
+      }
+
+      function genParticipants(n = 24, seed = Date.now() % 100000) {
+        const rng = mulberry32(seed);
+
+        const firstNames = ["Аня", "Илья", "Марат", "Лиза", "Денис", "Саша", "Оля", "Рома", "Вика", "Лёша", "Катя", "Павел", "Юля", "Тимур", "Дима", "Надя", "Кирилл", "Женя", "Артём", "Света", "Лена", "Глеб", "Мила", "Ира", "Федя", "Соня"];
+        const lastNames = ["Иванов(а)", "Петров(а)", "Смирнов(а)", "Кузнецов(а)", "Попов(а)", "Соколов(а)", "Лебедев(а)", "Новиков(а)", "Морозов(а)", "Волков(а)", "Соловьёв(а)", "Васильев(а)"];
+
+        // Создаем несколько "кластеров" по среде: (универ/комьюнити/город) + профессиональная доминанта
+        const clusters = [
+          { id: "A", roleBias: "dev", cityBias: "Москва", uniBias: "МФТИ", commBias: "AI Club" },
+          { id: "B", roleBias: "design", cityBias: "СПб", uniBias: "ИТМО", commBias: "DesignOps" },
+          { id: "C", roleBias: "data", cityBias: "Казань", uniBias: "КФУ", commBias: "Startup Lab" },
+          { id: "D", roleBias: "pm", cityBias: "Новосибирск", uniBias: "НГУ", commBias: "Product School" },
+        ];
+
+        const participants = [];
+        for (let i = 0; i < n; i++) {
+          const cl = clusters[Math.floor(rng() * clusters.length)];
+          const name = `${pick(rng, firstNames)} ${pick(rng, lastNames)}`;
+          const primaryRole = rng() < 0.58 ? cl.roleBias : pick(rng, ROLE_POOL);
+          const secondaryRole = rng() < 0.35 ? pick(rng, ROLE_POOL.filter((r) => r !== primaryRole)) : null;
+          const city = rng() < 0.65 ? cl.cityBias : pick(rng, CITY_POOL);
+          const university = rng() < 0.62 ? cl.uniBias : pick(rng, UNI_POOL);
+          const community = rng() < 0.68 ? cl.commBias : pick(rng, COMMUNITY_POOL);
+
+          // Когнитивный стиль (2 оси): divergence, structure
+          const divergence = clamp01((rng() + (primaryRole === "design" ? 0.15 : 0)) * 0.95);
+          const structure = clamp01((rng() + (primaryRole === "pm" ? 0.15 : 0)) * 0.95);
+
+          // Skill уровни (0..5) по ролям + общий уровень
+          const base = 1 + Math.floor(rng() * 4); // 1..4
+          const skills = {};
+          for (const role of ROLE_POOL) skills[role] = 0;
+          skills[primaryRole] = Math.min(5, base + (rng() < 0.25 ? 1 : 0));
+          if (secondaryRole) skills[secondaryRole] = Math.min(4, 1 + Math.floor(rng() * 3));
+          // "Общий" уровень — прокси seniority
+          const level = Math.round((skills.dev * 1.0 + skills.design * 0.9 + skills.data * 1.0 + skills.pm * 0.85 + skills.biz * 0.8 + rng() * 1.4) * 10) / 10;
+
+          participants.push({
+            id: `p${i + 1}`,
+            name,
+            clusterHint: cl.id,
+            primaryRole,
+            secondaryRole,
+            city,
+            university,
+            community,
+            style: { divergence, structure },
+            skills,
+            level,
+          });
+        }
+        return participants;
+      }
+
+      function makeEdges(participants, seed = 12345) {
+        const rng = mulberry32(seed);
+        const edges = [];
+        const byAttr = (key) => {
+          const map = new Map();
+          for (const p of participants) {
+            const v = p[key];
+            if (!map.has(v)) map.set(v, []);
+            map.get(v).push(p.id);
+          }
+          return map;
+        };
+
+        const uniGroups = byAttr("university");
+        const commGroups = byAttr("community");
+        const cityGroups = byAttr("city");
+
+        function addEdge(a, b, type, w) {
+          if (a === b) return;
+          const key = a < b ? `${a}|${b}|${type}` : `${b}|${a}|${type}`;
+          edges.push({ key, a, b, type, w });
+        }
+
+        // "работали вместе": генерируем плотные группы внутри clusterHint
+        const clusterGroups = new Map();
+        for (const p of participants) {
+          if (!clusterGroups.has(p.clusterHint)) clusterGroups.set(p.clusterHint, []);
+          clusterGroups.get(p.clusterHint).push(p.id);
+        }
+        for (const [, ids] of clusterGroups) {
+          for (let i = 0; i < ids.length; i++) {
+            for (let j = i + 1; j < ids.length; j++) {
+              if (rng() < 0.28) addEdge(ids[i], ids[j], "worked", 0.55 + rng() * 0.45);
+            }
+          }
+        }
+        // "один универ/комьюнити/город": слабые связи
+        for (const [uni, ids] of uniGroups) {
+          if (ids.length < 3) continue;
+          for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (rng() < 0.07) addEdge(ids[i], ids[j], "uni", 0.18 + rng() * 0.22);
+        }
+        for (const [c, ids] of commGroups) {
+          if (ids.length < 3) continue;
+          for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (rng() < 0.08) addEdge(ids[i], ids[j], "community", 0.14 + rng() * 0.20);
+        }
+        for (const [city, ids] of cityGroups) {
+          if (ids.length < 3) continue;
+          for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (rng() < 0.05) addEdge(ids[i], ids[j], "city", 0.10 + rng() * 0.18);
+        }
+
+        // Приведем к единственному ребру на пару: суммарный вес с капом
+        const merged = new Map();
+        for (const e of edges) {
+          const key = e.a < e.b ? `${e.a}|${e.b}` : `${e.b}|${e.a}`;
+          const prev = merged.get(key) || { a: e.a, b: e.b, w: 0, tags: new Set() };
+          prev.w = Math.min(1, prev.w + e.w * (e.type === "worked" ? 1 : 0.6));
+          prev.tags.add(e.type);
+          merged.set(key, prev);
+        }
+        return [...merged.values()].map((x) => ({ a: x.a, b: x.b, w: x.w, tags: [...x.tags] }));
+      }
+
+      // ---- Граф и метрики (упрощенно) ----
+      function buildAdj(participants, edges) {
+        const adj = new Map();
+        for (const p of participants) adj.set(p.id, []);
+        for (const e of edges) {
+          adj.get(e.a).push({ to: e.b, w: e.w, tags: e.tags });
+          adj.get(e.b).push({ to: e.a, w: e.w, tags: e.tags });
+        }
+        return adj;
+      }
+
+      // Прокси-constraint: если соседи сильно "пересекаются", constraint выше.
+      function computeConstraint(participants, adj) {
+        const N = new Map();
+        for (const p of participants) N.set(p.id, adj.get(p.id).map((x) => x.to));
+        const out = new Map();
+        for (const p of participants) {
+          const neigh = N.get(p.id);
+          if (neigh.length === 0) {
+            out.set(p.id, 1);
+            continue;
+          }
+          // overlap ratio average
+          let sum = 0;
+          for (const n of neigh) {
+            const a = new Set(neigh);
+            a.delete(n);
+            const b = new Set(N.get(n) || []);
+            let inter = 0;
+            for (const x of a) if (b.has(x)) inter++;
+            const denom = Math.max(1, a.size + b.size - inter);
+            sum += inter / denom;
+          }
+          const c = clamp01(sum / neigh.length);
+          out.set(p.id, c);
+        }
+        return out; // 0..1 (0 = хороший мост)
+      }
+
+      function edgeWeightBetween(a, b, adj) {
+        const xs = adj.get(a) || [];
+        const e = xs.find((x) => x.to === b);
+        return e ? e.w : 0;
+      }
+
+      function similarityKey(p) {
+        return `${p.primaryRole}|${p.city}|${p.university}|${p.community}`;
+      }
+
+      function featureDistance(a, b) {
+        // 0..1: чем больше различие по ролям/гео/стилю, тем ближе к 1
+        let d = 0;
+        d += a.primaryRole === b.primaryRole ? 0 : 0.25;
+        d += a.city === b.city ? 0 : 0.15;
+        d += a.university === b.university ? 0 : 0.18;
+        d += a.community === b.community ? 0 : 0.12;
+        d += Math.abs(a.style.divergence - b.style.divergence) * 0.15;
+        d += Math.abs(a.style.structure - b.style.structure) * 0.15;
+        return clamp01(d);
+      }
+
+      function teamSkillVector(team, byId) {
+        const v = { dev: 0, design: 0, data: 0, pm: 0, biz: 0 };
+        for (const id of team.members) {
+          const p = byId.get(id);
+          for (const r of ROLE_POOL) v[r] += p.skills[r] || 0;
+        }
+        return v;
+      }
+
+      function teamLevel(team, byId) {
+        let s = 0;
+        for (const id of team.members) s += byId.get(id).level;
+        return s;
+      }
+
+      function missingRolesScore(team, byId) {
+        const v = teamSkillVector(team, byId);
+        // хотим хотя бы ненулевое присутствие dev/design/pm, data/biz желательно
+        let miss = 0;
+        if (v.dev <= 0) miss += 1.2;
+        if (v.design <= 0) miss += 1.0;
+        if (v.pm <= 0) miss += 0.8;
+        if (v.data <= 0) miss += 0.35;
+        if (v.biz <= 0) miss += 0.25;
+        return miss;
+      }
+
+      // ---- Матчинг (ядра -> мосты -> баланс) ----
+      function getStrategyParams(strategy) {
+        if (strategy === "conservative") {
+          return {
+            strongEdge: 0.72,
+            bridges: 1,
+            wInter: 0.9,
+            wDiversity: 0.6,
+            wHole: 0.6,
+            wComplement: 0.8,
+            wRisk: 1.0,
+            balanceIters: 220,
+            chaos: 0.0,
+          };
+        }
+        if (strategy === "chaotic") {
+          return {
+            strongEdge: 0.62,
+            bridges: 2,
+            wInter: 0.9,
+            wDiversity: 0.75,
+            wHole: 0.75,
+            wComplement: 0.65,
+            wRisk: 0.55,
+            balanceIters: 120,
+            chaos: 0.35, // выбираем среди top-N случайнее
+          };
+        }
+        return {
+          strongEdge: 0.68,
+          bridges: 2,
+          wInter: 1.1,
+          wDiversity: 0.9,
+          wHole: 0.9,
+          wComplement: 0.9,
+          wRisk: 0.75,
+          balanceIters: 260,
+          chaos: 0.12,
+        };
+      }
+
+      function findCores(participants, edges, adj, params) {
+        // Ищем пары/тройки с сильными связями. Приоритет: тройки с высокой внутренней суммой.
+        const byId = new Map(participants.map((p) => [p.id, p]));
+        const assigned = new Set();
+        const strongPairs = [];
+        for (const e of edges) if (e.w >= params.strongEdge) strongPairs.push(e);
+        strongPairs.sort((a, b) => b.w - a.w);
+
+        const triads = [];
+        // строим быстрое множество сильных связей
+        const strong = new Set();
+        for (const e of edges) if (e.w >= params.strongEdge) strong.add(e.a < e.b ? `${e.a}|${e.b}` : `${e.b}|${e.a}`);
+        function hasStrong(a, b) {
+          const k = a < b ? `${a}|${b}` : `${b}|${a}`;
+          return strong.has(k);
+        }
+
+        // кандидаты троек: из сильных пар + общий сосед
+        const neighStrong = new Map();
+        for (const p of participants) {
+          const xs = (adj.get(p.id) || []).filter((x) => x.w >= params.strongEdge).map((x) => x.to);
+          neighStrong.set(p.id, xs);
+        }
+        for (const p of participants) {
+          const ns = neighStrong.get(p.id);
+          for (let i = 0; i < ns.length; i++) {
+            for (let j = i + 1; j < ns.length; j++) {
+              const a = ns[i];
+              const b = ns[j];
+              if (!hasStrong(a, b)) continue;
+              const score = edgeWeightBetween(p.id, a, adj) + edgeWeightBetween(p.id, b, adj) + edgeWeightBetween(a, b, adj);
+              triads.push({ ids: [p.id, a, b], score });
+            }
+          }
+        }
+        triads.sort((x, y) => y.score - x.score);
+
+        const cores = [];
+        // сначала берём лучшие тройки
+        for (const t of triads) {
+          if (t.ids.some((id) => assigned.has(id))) continue;
+          // штраф за "слишком одинаковых"
+          const ps = t.ids.map((id) => byId.get(id));
+          const sameKey = new Set(ps.map(similarityKey)).size === 1;
+          const finalScore = t.score - (sameKey ? 0.4 : 0);
+          if (finalScore < params.strongEdge * 2.1) continue;
+          cores.push({ members: [...t.ids], core: [...t.ids], bridges: [], reasons: [] });
+          t.ids.forEach((id) => assigned.add(id));
+        }
+
+        // затем пары
+        for (const e of strongPairs) {
+          if (assigned.has(e.a) || assigned.has(e.b)) continue;
+          cores.push({ members: [e.a, e.b], core: [e.a, e.b], bridges: [], reasons: [] });
+          assigned.add(e.a);
+          assigned.add(e.b);
+        }
+
+        return { cores, assigned };
+      }
+
+      function teamProfile(team, byId) {
+        // доминанты: роль/город/универ/комьюнити + средний стиль
+        const counts = {
+          role: new Map(),
+          city: new Map(),
+          university: new Map(),
+          community: new Map(),
+        };
+        let div = 0,
+          st = 0;
+        for (const id of team.members) {
+          const p = byId.get(id);
+          const bump = (map, key) => map.set(key, (map.get(key) || 0) + 1);
+          bump(counts.role, p.primaryRole);
+          bump(counts.city, p.city);
+          bump(counts.university, p.university);
+          bump(counts.community, p.community);
+          div += p.style.divergence;
+          st += p.style.structure;
+        }
+        const pickMax = (map) => {
+          let best = null,
+            bestV = -1;
+          for (const [k, v] of map) if (v > bestV) (best = k), (bestV = v);
+          return best;
+        };
+        const n = Math.max(1, team.members.length);
+        return {
+          role: pickMax(counts.role),
+          city: pickMax(counts.city),
+          university: pickMax(counts.university),
+          community: pickMax(counts.community),
+          style: { divergence: div / n, structure: st / n },
+        };
+      }
+
+      function socialRisk(candidateId, team, adj) {
+        // риск высок, если нет вообще ни одной связи с командой
+        let maxW = 0;
+        for (const id of team.members) maxW = Math.max(maxW, edgeWeightBetween(candidateId, id, adj));
+        if (maxW <= 0) return 1.0;
+        if (maxW < 0.18) return 0.55;
+        return 0.15;
+      }
+
+      function skillComplement(candidate, team, byId) {
+        const v = teamSkillVector(team, byId);
+        // "дефицит" по ролям, которые сейчас слабые
+        const deficits = {
+          dev: v.dev < 5 ? 1 : 0,
+          design: v.design < 3 ? 1 : 0,
+          pm: v.pm < 3 ? 1 : 0,
+          data: v.data < 2 ? 1 : 0,
+          biz: v.biz < 2 ? 1 : 0,
+        };
+        let gain = 0;
+        for (const r of ROLE_POOL) gain += deficits[r] * Math.min(1, (candidate.skills[r] || 0) / 5);
+        return clamp01(gain / 2.4);
+      }
+
+      function bridgeGain(candidate, team, byId, adj, constraintMap, params) {
+        const prof = teamProfile(team, byId);
+        const inter =
+          (candidate.primaryRole === prof.role ? 0 : 0.35) +
+          (candidate.city === prof.city ? 0 : 0.25) +
+          (candidate.university === prof.university ? 0 : 0.25) +
+          (candidate.community === prof.community ? 0 : 0.15);
+        const diversity = featureDistance(candidate, { ...prof, primaryRole: prof.role, city: prof.city, university: prof.university, community: prof.community, style: prof.style });
+        const hole = clamp01((1 - (constraintMap.get(candidate.id) ?? 1)) * 0.8 + (adj.get(candidate.id)?.length ?? 0) / 20 * 0.2);
+        const complement = skillComplement(candidate, team, byId);
+        const risk = socialRisk(candidate.id, team, adj);
+
+        return params.wInter * clamp01(inter) + params.wDiversity * diversity + params.wHole * hole + params.wComplement * complement - params.wRisk * risk;
+      }
+
+      function pickTopWithChaos(scored, chaos, seed) {
+        // scored: [{id, score}]
+        if (scored.length === 0) return null;
+        scored.sort((a, b) => b.score - a.score);
+        if (chaos <= 0.0001) return scored[0];
+        const rng = mulberry32(seed);
+        const topN = Math.max(1, Math.min(scored.length, 1 + Math.floor(chaos * 8)));
+        const idx = Math.floor(rng() * topN);
+        return scored[idx];
+      }
+
+      function assignBridges(teams, participants, assigned, byId, adj, constraintMap, params) {
+        for (const team of teams) {
+          const need = params.bridges;
+          const localSeed = (team.core.join("").length * 1337) ^ (Math.floor(Math.random() * 1e9) >>> 0);
+          for (let k = 0; k < need; k++) {
+            const candidates = participants.filter((p) => !assigned.has(p.id));
+            const scored = [];
+            for (const c of candidates) {
+              const s = bridgeGain(c, team, byId, adj, constraintMap, params);
+              scored.push({ id: c.id, score: s });
+            }
+            const pickOne = pickTopWithChaos(scored, params.chaos, localSeed + k * 17);
+            if (!pickOne) break;
+            team.members.push(pickOne.id);
+            team.bridges.push(pickOne.id);
+            assigned.add(pickOne.id);
+            const p = byId.get(pickOne.id);
+            team.reasons.push({
+              id: pickOne.id,
+              text: `bridge: ${p.primaryRole} из “${p.community}”, ${p.city}/${p.university}`,
+            });
+          }
+        }
+      }
+
+      function seedTeams(participants, edges, adj, params) {
+        const byId = new Map(participants.map((p) => [p.id, p]));
+        const constraintMap = computeConstraint(participants, adj);
+        const { cores, assigned } = findCores(participants, edges, adj, params);
+        const teams = [...cores];
+
+        // если ядер мало — создаем "мягкие ядра" по совместимости (пара по комплементарности + слабая связь/похожий контекст)
+        const targetTeams = Math.max(1, Math.round(participants.length / Math.max(3, parseInt($("teamSize").value, 10) || 5)));
+        while (teams.length < targetTeams) {
+          const free = participants.filter((p) => !assigned.has(p.id));
+          if (free.length < 2) break;
+          // выбираем пару: либо есть ребро, либо хорошая комплементарность
+          let best = null;
+          for (let i = 0; i < free.length; i++) {
+            for (let j = i + 1; j < free.length; j++) {
+              const a = free[i],
+                b = free[j];
+              const w = edgeWeightBetween(a.id, b.id, adj);
+              const diff = featureDistance(a, b);
+              const comp = clamp01((a.skills.dev === 0 && b.skills.dev > 0 ? 0.3 : 0) + (a.skills.design === 0 && b.skills.design > 0 ? 0.25 : 0) + (a.skills.pm === 0 && b.skills.pm > 0 ? 0.2 : 0));
+              const score = w * 1.2 + diff * 0.35 + comp * 0.6 - Math.abs(a.level - b.level) * 0.08;
+              if (!best || score > best.score) best = { a: a.id, b: b.id, score };
+            }
+          }
+          if (!best) break;
+          teams.push({ members: [best.a, best.b], core: [best.a, best.b], bridges: [], reasons: [] });
+          assigned.add(best.a);
+          assigned.add(best.b);
+        }
+
+        assignBridges(teams, participants, assigned, byId, adj, constraintMap, params);
+        return { teams, assigned, byId, constraintMap };
+      }
+
+      function assignRemainingByBalancing(teams, participants, assigned, byId, adj, teamSize) {
+        const free = participants.filter((p) => !assigned.has(p.id));
+        // жадное распределение: в команду с минимальной суммой level с учетом закрытия ролей
+        for (const p of free) {
+          let bestIdx = -1;
+          let bestScore = -Infinity;
+          for (let i = 0; i < teams.length; i++) {
+            const t = teams[i];
+            if (t.members.length >= teamSize) continue;
+            // хотим: низкий текущий уровень + закрытие дыр + хотя бы слабая связь
+            const lvl = teamLevel(t, byId);
+            const miss = missingRolesScore(t, byId);
+            let maxTie = 0;
+            for (const id of t.members) maxTie = Math.max(maxTie, edgeWeightBetween(p.id, id, adj));
+            const tie = maxTie > 0 ? Math.min(1, maxTie) : 0;
+            const projected = { members: [...t.members, p.id] };
+            const missAfter = missingRolesScore(projected, byId);
+            const roleGain = clamp01((miss - missAfter) / 1.6);
+            const score = -lvl * 0.18 + roleGain * 0.9 + tie * 0.25 - Math.abs(p.level - lvl / Math.max(1, t.members.length)) * 0.05;
+            if (score > bestScore) {
+              bestScore = score;
+              bestIdx = i;
+            }
+          }
+          if (bestIdx === -1) {
+            // если все забиты — создаем новую команду
+            teams.push({ members: [p.id], core: [p.id], bridges: [], reasons: [] });
+            assigned.add(p.id);
+          } else {
+            teams[bestIdx].members.push(p.id);
+            assigned.add(p.id);
+          }
+        }
+      }
+
+      function objectiveScores(teams, byId, adj, constraintMap) {
+        // Для метрик UI: novelty avg + skill balance (stddev levels)
+        const teamNovelty = (t) => {
+          // novelty: доля "межпрофильных" пар внутри команды + наличие bridges с низким constraint
+          const ids = t.members;
+          if (ids.length < 2) return 0;
+          let pairs = 0;
+          let diverse = 0;
+          for (let i = 0; i < ids.length; i++) {
+            for (let j = i + 1; j < ids.length; j++) {
+              pairs++;
+              const a = byId.get(ids[i]);
+              const b = byId.get(ids[j]);
+              if (a.primaryRole !== b.primaryRole) diverse++;
+              else if (a.city !== b.city || a.university !== b.university || a.community !== b.community) diverse += 0.5;
+            }
+          }
+          const bridgeBonus = t.bridges.reduce((s, id) => s + (1 - (constraintMap.get(id) ?? 1)), 0) / Math.max(1, t.bridges.length);
+          return clamp01((diverse / pairs) * 0.8 + bridgeBonus * 0.2);
+        };
+
+        const levels = teams.map((t) => teamLevel(t, byId));
+        const mean = levels.reduce((a, b) => a + b, 0) / Math.max(1, levels.length);
+        const variance = levels.reduce((s, x) => s + (x - mean) * (x - mean), 0) / Math.max(1, levels.length);
+        const std = Math.sqrt(variance);
+
+        const noveltyAvg = teams.reduce((s, t) => s + teamNovelty(t), 0) / Math.max(1, teams.length);
+        return { noveltyAvg, balanceStd: std };
+      }
+
+      function localImproveSwaps(teams, byId, adj, constraintMap, iters = 200, teamSize = 5) {
+        // Меняем участников между командами, если улучшает баланс уровней и покрытие ролей, не убивая ядро.
+        function penalty(t) {
+          const lvl = teamLevel(t, byId);
+          const miss = missingRolesScore(t, byId);
+          // слабая связность: штраф, если почти нет ребер внутри
+          let tieSum = 0,
+            cnt = 0;
+          for (let i = 0; i < t.members.length; i++) {
+            for (let j = i + 1; j < t.members.length; j++) {
+              cnt++;
+              tieSum += edgeWeightBetween(t.members[i], t.members[j], adj);
+            }
+          }
+          const cohesion = cnt ? tieSum / cnt : 0;
+          const cohesionPenalty = cohesion < 0.12 ? (0.12 - cohesion) * 4 : 0;
+          return lvl * 0.0 + miss * 1.1 + cohesionPenalty;
+        }
+
+        const rng = mulberry32((Date.now() >>> 0) ^ 0x9e3779b9);
+        for (let k = 0; k < iters; k++) {
+          const i = Math.floor(rng() * teams.length);
+          let j = Math.floor(rng() * teams.length);
+          if (teams.length < 2) break;
+          if (j === i) j = (j + 1) % teams.length;
+
+          const A = teams[i];
+          const B = teams[j];
+          if (A.members.length === 0 || B.members.length === 0) continue;
+
+          // Не трогаем "ядро" слишком агрессивно: запрещаем вытаскивать core-участников, если core size>=2
+          const movableA = A.members.filter((id) => !(A.core.length >= 2 && A.core.includes(id)));
+          const movableB = B.members.filter((id) => !(B.core.length >= 2 && B.core.includes(id)));
+          if (movableA.length === 0 || movableB.length === 0) continue;
+
+          const aId = movableA[Math.floor(rng() * movableA.length)];
+          const bId = movableB[Math.floor(rng() * movableB.length)];
+
+          // Проверим размер
+          if (A.members.length > teamSize && !B.members.includes(aId)) {
+            // ok
+          }
+
+          const base = penalty(A) + penalty(B);
+          // swap
+          const aIdx = A.members.indexOf(aId);
+          const bIdx = B.members.indexOf(bId);
+          A.members[aIdx] = bId;
+          B.members[bIdx] = aId;
+          // bridges метки оставляем: если swapped bridge — пересчитаем грубо
+          A.bridges = A.bridges.filter((x) => x !== aId && x !== bId);
+          B.bridges = B.bridges.filter((x) => x !== aId && x !== bId);
+
+          const next = penalty(A) + penalty(B);
+          const accept = next <= base || rng() < 0.08;
+          if (!accept) {
+            // revert
+            A.members[aIdx] = aId;
+            B.members[bIdx] = bId;
+          }
+        }
+      }
+
+      function matchAll(participants, edges, strategy, teamSize) {
+        const adj = buildAdj(participants, edges);
+        const params = getStrategyParams(strategy);
+        const { teams, assigned, byId, constraintMap } = seedTeams(participants, edges, adj, params);
+        assignRemainingByBalancing(teams, participants, assigned, byId, adj, teamSize);
+        localImproveSwaps(teams, byId, adj, constraintMap, params.balanceIters, teamSize);
+
+        // Уберем пустые и ограничим размер (если кто-то лишний — перекинем в недозаполненные)
+        const flat = teams.filter((t) => t.members.length > 0);
+        // мягкая нормализация размеров
+        let changed = true;
+        while (changed) {
+          changed = false;
+          const over = flat.find((t) => t.members.length > teamSize);
+          const under = flat.find((t) => t.members.length < teamSize);
+          if (!over || !under) break;
+          const movable = over.members.filter((id) => !(over.core.length >= 2 && over.core.includes(id)));
+          const moveId = movable[0];
+          if (!moveId) break;
+          over.members.splice(over.members.indexOf(moveId), 1);
+          under.members.push(moveId);
+          changed = true;
+        }
+
+        // пересчитаем labels core/bridge (bridge уже есть, core есть)
+        const metrics = objectiveScores(flat, byId, adj, constraintMap);
+        return { teams: flat, byId, adj, constraintMap, metrics, params };
+      }
+
+      // ---- Визуализация “созвездий” ----
+      const canvas = $("c");
+      const ctx = canvas.getContext("2d");
+      const DPR = () => Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+
+      function resizeCanvas() {
+        const r = canvas.getBoundingClientRect();
+        const dpr = DPR();
+        canvas.width = Math.floor(r.width * dpr);
+        canvas.height = Math.floor(r.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      const viz = {
+        nodes: [], // {id,x,y,vx,vy,teamIdx,isCore,isBridge}
+        edges: [], // {aIdx,bIdx,w,kind}
+        hover: null, // nodeIdx
+        teams: [],
+        byId: null,
+      };
+
+      function layoutTeams(result) {
+        const { teams, byId, adj } = result;
+        viz.teams = teams;
+        viz.byId = byId;
+
+        const rect = canvas.getBoundingClientRect();
+        const W = rect.width;
+        const H = rect.height;
+
+        // центры команд на окружности
+        const centers = [];
+        const R = Math.min(W, H) * 0.32;
+        const cx = W * 0.56;
+        const cy = H * 0.52;
+        for (let i = 0; i < teams.length; i++) {
+          const ang = (i / Math.max(1, teams.length)) * Math.PI * 2 - Math.PI / 2;
+          centers.push({ x: cx + Math.cos(ang) * R, y: cy + Math.sin(ang) * R });
+        }
+
+        const nodes = [];
+        const idToIdx = new Map();
+        // размещаем узлы вокруг центра команды: ядро ближе, мосты дальше
+        for (let tIdx = 0; tIdx < teams.length; tIdx++) {
+          const t = teams[tIdx];
+          const c = centers[tIdx];
+          const memberIds = t.members;
+          for (let m = 0; m < memberIds.length; m++) {
+            const id = memberIds[m];
+            const isCore = t.core.includes(id) && t.core.length > 1;
+            const isBridge = t.bridges.includes(id);
+            const angle = (m / Math.max(1, memberIds.length)) * Math.PI * 2;
+            const ring = isCore ? 26 : isBridge ? 74 : 48;
+            const jitter = (Math.random() - 0.5) * 10;
+            const x = c.x + Math.cos(angle) * (ring + jitter);
+            const y = c.y + Math.sin(angle) * (ring + jitter);
+            const node = { id, x, y, vx: 0, vy: 0, teamIdx: tIdx, isCore, isBridge };
+            idToIdx.set(id, nodes.length);
+            nodes.push(node);
+          }
+        }
+
+        const edges = [];
+        // внутренние связи команды
+        for (let tIdx = 0; tIdx < teams.length; tIdx++) {
+          const t = teams[tIdx];
+          const ids = t.members;
+          for (let i = 0; i < ids.length; i++) {
+            for (let j = i + 1; j < ids.length; j++) {
+              const w = edgeWeightBetween(ids[i], ids[j], adj);
+              if (w <= 0.12) continue;
+              edges.push({ aIdx: idToIdx.get(ids[i]), bIdx: idToIdx.get(ids[j]), w, kind: "in" });
+            }
+          }
+        }
+        // межкомандные связи: только если достаточно сильны
+        const allIds = nodes.map((n) => n.id);
+        for (let i = 0; i < allIds.length; i++) {
+          for (let j = i + 1; j < allIds.length; j++) {
+            const ai = nodes[i], bj = nodes[j];
+            if (ai.teamIdx === bj.teamIdx) continue;
+            const w = edgeWeightBetween(ai.id, bj.id, adj);
+            if (w < 0.22) continue;
+            edges.push({ aIdx: i, bIdx: j, w, kind: "out" });
+          }
+        }
+
+        viz.nodes = nodes;
+        viz.edges = edges;
+      }
+
+      function tickPhysics() {
+        const rect = canvas.getBoundingClientRect();
+        const W = rect.width;
+        const H = rect.height;
+        // легкая "релаксация" + отталкивание
+        for (const n of viz.nodes) {
+          n.vx *= 0.92;
+          n.vy *= 0.92;
+        }
+        // spring по ребрам
+        for (const e of viz.edges) {
+          const a = viz.nodes[e.aIdx];
+          const b = viz.nodes[e.bIdx];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.max(0.0001, Math.hypot(dx, dy));
+          const target = e.kind === "in" ? 52 - e.w * 18 : 170 - e.w * 40;
+          const k = e.kind === "in" ? 0.0022 : 0.0012;
+          const f = (dist - target) * k;
+          const fx = (dx / dist) * f;
+          const fy = (dy / dist) * f;
+          a.vx += fx;
+          a.vy += fy;
+          b.vx -= fx;
+          b.vy -= fy;
+        }
+        // repulsion (локально)
+        for (let i = 0; i < viz.nodes.length; i++) {
+          for (let j = i + 1; j < viz.nodes.length; j++) {
+            const a = viz.nodes[i];
+            const b = viz.nodes[j];
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const dist2 = dx * dx + dy * dy;
+            const min = a.teamIdx === b.teamIdx ? 18 * 18 : 13 * 13;
+            if (dist2 < min) {
+              const dist = Math.max(0.0001, Math.sqrt(dist2));
+              const push = (min - dist2) * 0.00004;
+              const fx = (dx / dist) * push;
+              const fy = (dy / dist) * push;
+              a.vx -= fx;
+              a.vy -= fy;
+              b.vx += fx;
+              b.vy += fy;
+            }
+          }
+        }
+        // boundaries
+        for (const n of viz.nodes) {
+          n.x += n.vx;
+          n.y += n.vy;
+          n.x = Math.max(14, Math.min(W - 14, n.x));
+          n.y = Math.max(14, Math.min(H - 14, n.y));
+        }
+      }
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        const W = rect.width;
+        const H = rect.height;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // фоновые "звезды"
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        for (let i = 0; i < 140; i++) {
+          const x = ((i * 97) % 1000) / 1000 * W;
+          const y = ((i * 179) % 1000) / 1000 * H;
+          const a = 0.04 + ((i * 31) % 100) / 100 * 0.10;
+          ctx.fillStyle = `rgba(255,255,255,${a})`;
+          ctx.fillRect(x, y, 1, 1);
+        }
+        ctx.restore();
+
+        // edges
+        for (const e of viz.edges) {
+          const a = viz.nodes[e.aIdx];
+          const b = viz.nodes[e.bIdx];
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          const alpha = e.kind === "in" ? 0.12 + e.w * 0.22 : 0.05 + e.w * 0.12;
+          ctx.strokeStyle = e.kind === "in" ? `rgba(255,255,255,${alpha})` : `rgba(139,92,246,${alpha})`;
+          ctx.lineWidth = e.kind === "in" ? 1.2 : 1.0;
+          ctx.stroke();
+        }
+
+        // nodes
+        for (let i = 0; i < viz.nodes.length; i++) {
+          const n = viz.nodes[i];
+          const p = viz.byId.get(n.id);
+          const base = ROLE_COLOR[p.primaryRole] || "rgba(255,255,255,0.8)";
+          const r = n.isCore ? 7.2 : n.isBridge ? 7.8 : 6.0;
+          const glow = n.isCore ? 0.48 : n.isBridge ? 0.42 : 0.18;
+
+          // glow
+          ctx.save();
+          ctx.globalAlpha = glow;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, r * 2.1, 0, Math.PI * 2);
+          ctx.fillStyle = base;
+          ctx.fill();
+          ctx.restore();
+
+          // dot
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+          let fill = base;
+          if (n.isCore) fill = getComputedStyle(document.documentElement).getPropertyValue("--core").trim() || base;
+          if (n.isBridge) fill = getComputedStyle(document.documentElement).getPropertyValue("--bridge").trim() || base;
+          ctx.fillStyle = fill;
+          ctx.fill();
+
+          // hover ring
+          if (viz.hover === i) {
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, r + 5.5, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(255,255,255,0.65)";
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+        }
+
+        // tooltip
+        if (viz.hover != null) {
+          const n = viz.nodes[viz.hover];
+          const p = viz.byId.get(n.id);
+          const t = viz.teams[n.teamIdx];
+          const lines = [
+            `${p.name}`,
+            `${p.primaryRole}${p.secondaryRole ? " / " + p.secondaryRole : ""} • level ${p.level}`,
+            `${p.city} • ${p.university} • ${p.community}`,
+            `${n.isCore ? "ядро" : n.isBridge ? "bridge" : "участник"} • Team ${n.teamIdx + 1}`,
+          ];
+          const padX = 10,
+            padY = 8;
+          ctx.save();
+          ctx.font = "12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial";
+          const w = Math.max(...lines.map((s) => ctx.measureText(s).width)) + padX * 2;
+          const h = lines.length * 16 + padY * 2;
+          let x = n.x + 14;
+          let y = n.y - h - 12;
+          if (x + w > W - 10) x = n.x - w - 14;
+          if (y < 10) y = n.y + 12;
+          ctx.fillStyle = "rgba(0,0,0,0.55)";
+          ctx.strokeStyle = "rgba(255,255,255,0.14)";
+          ctx.lineWidth = 1;
+          roundRect(ctx, x, y, w, h, 12);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "rgba(255,255,255,0.92)";
+          for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], x + padX, y + padY + 12 + i * 16);
+          }
+          ctx.restore();
+        }
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        const rr = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rr, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rr);
+        ctx.arcTo(x + w, y + h, x, y + h, rr);
+        ctx.arcTo(x, y + h, x, y, rr);
+        ctx.arcTo(x, y, x + w, y, rr);
+        ctx.closePath();
+      }
+
+      function hitTest(mx, my) {
+        let best = null;
+        let bestD = Infinity;
+        for (let i = 0; i < viz.nodes.length; i++) {
+          const n = viz.nodes[i];
+          const dx = mx - n.x;
+          const dy = my - n.y;
+          const d = Math.hypot(dx, dy);
+          const r = n.isBridge ? 10 : n.isCore ? 10 : 9;
+          if (d <= r && d < bestD) {
+            best = i;
+            bestD = d;
+          }
+        }
+        return best;
+      }
+
+      // ---- UI wiring ----
+      let state = {
+        seed: 4242,
+        participants: [],
+        edges: [],
+        result: null,
+        rtTimer: null,
+      };
+
+      function updateMetricsUI() {
+        const teamSize = parseInt($("teamSize").value, 10) || 5;
+        $("mPeople").textContent = `${state.participants.length}`;
+        $("mTeams").textContent = state.result ? `${state.result.teams.length}` : "—";
+        $("mNovelty").textContent = state.result ? `${Math.round(state.result.metrics.noveltyAvg * 100)}%` : "—";
+        // balance: stddev normalized
+        if (state.result) {
+          const std = state.result.metrics.balanceStd;
+          $("mBalance").textContent = `${std.toFixed(2)}`;
+        } else {
+          $("mBalance").textContent = "—";
+        }
+      }
+
+      function runMatch(reason = "manual") {
+        const strategy = $("strategy").value;
+        const teamSize = Math.max(3, Math.min(8, parseInt($("teamSize").value, 10) || 5));
+        const res = matchAll(state.participants, state.edges, strategy, teamSize);
+        state.result = res;
+        layoutTeams(res);
+        updateMetricsUI();
+
+        const bridgeCount = res.teams.reduce((s, t) => s + t.bridges.length, 0);
+        pushLog(`<${reason}> матчиинг: стратегия=${strategy}, teamSize=${teamSize}, bridges=${bridgeCount}`);
+        toast(`<strong>Constella</strong>: команды пересобраны (${strategy})`);
+      }
+
+      function regenData() {
+        state.seed = (Date.now() >>> 0) % 1000000;
+        state.participants = genParticipants(26, state.seed);
+        state.edges = makeEdges(state.participants, state.seed ^ 0xabcdef);
+        pushLog(`Демо-данные обновлены (seed=${state.seed}). Узлов=${state.participants.length}, связей=${state.edges.length}`);
+        runMatch("data");
+      }
+
+      function toggleRealtime(on) {
+        if (state.rtTimer) {
+          clearInterval(state.rtTimer);
+          state.rtTimer = null;
+        }
+        if (!on) return;
+        state.rtTimer = setInterval(() => {
+          // симулируем событие: 1) кто-то обновил профиль, 2) добавилась слабая связь
+          const rng = mulberry32((Date.now() >>> 0) ^ 0x1234567);
+          const p = state.participants[Math.floor(rng() * state.participants.length)];
+          if (!p) return;
+
+          const what = rng();
+          if (what < 0.45) {
+            // смена интереса/комьюнити или города (легкий “сдвиг” профиля)
+            const old = `${p.city}/${p.community}`;
+            if (rng() < 0.5) p.city = pick(rng, CITY_POOL);
+            else p.community = pick(rng, COMMUNITY_POOL);
+            const neu = `${p.city}/${p.community}`;
+            pushLog(`event: обновление профиля ${p.name}: ${old} → ${neu}`);
+          } else {
+            // добавить/усилить связь между двумя случайными
+            const a = state.participants[Math.floor(rng() * state.participants.length)];
+            const b = state.participants[Math.floor(rng() * state.participants.length)];
+            if (a && b && a.id !== b.id) {
+              // если есть ребро — усилим, иначе создадим слабое
+              const key = a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`;
+              const idx = state.edges.findIndex((e) => (e.a < e.b ? `${e.a}|${e.b}` : `${e.b}|${e.a}`) === key);
+              if (idx >= 0) {
+                const old = state.edges[idx].w;
+                state.edges[idx].w = Math.min(1, old + 0.12);
+                state.edges[idx].tags = Array.from(new Set([...(state.edges[idx].tags || []), "worked"]));
+                pushLog(`event: усиление связи ${a.name} ↔ ${b.name}: ${old.toFixed(2)} → ${state.edges[idx].w.toFixed(2)}`);
+              } else {
+                state.edges.push({ a: a.id, b: b.id, w: 0.22 + rng() * 0.18, tags: ["community"] });
+                pushLog(`event: новая связь ${a.name} ↔ ${b.name}`);
+              }
+            }
+          }
+          runMatch("rt");
+        }, 2500);
+      }
+
+      $("run").addEventListener("click", () => runMatch("manual"));
+      $("shuffle").addEventListener("click", regenData);
+      $("clearLog").addEventListener("click", () => (logEl.textContent = ""));
+      $("strategy").addEventListener("change", () => runMatch("strategy"));
+      $("teamSize").addEventListener("change", () => runMatch("teamSize"));
+      $("rt").addEventListener("input", (e) => {
+        const on = String(e.target.value) === "1";
+        $("rtLabel").textContent = on ? "Включено: каждые ~2.5s меняются данные и идет мягкий рематч." : "Выключено: команды пересчитываются только вручную.";
+        pushLog(`real-time: ${on ? "ON" : "OFF"}`);
+        toggleRealtime(on);
+      });
+
+      // hover
+      canvas.addEventListener("mousemove", (ev) => {
+        const r = canvas.getBoundingClientRect();
+        const mx = ev.clientX - r.left;
+        const my = ev.clientY - r.top;
+        const h = hitTest(mx, my);
+        viz.hover = h;
+      });
+      canvas.addEventListener("mouseleave", () => (viz.hover = null));
+
+      function animate() {
+        tickPhysics();
+        draw();
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        if (state.result) layoutTeams(state.result);
+      });
+
+      // старт
+      resizeCanvas();
+      pushLog("Constella запущена. Генерирую демо-данные…");
+      regenData();
+      toggleRealtime($("rt").value === "1");
+      animate();
+    </script>
+  </body>
+</html>
