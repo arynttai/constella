@@ -73,7 +73,7 @@ function renderShell() {
 
         <div class="divider"></div>
         <label for="rt">Real-time (WebSocket)</label>
-        <input id="rt" type="range" min="0" max="1" step="1" value="1" />
+        <input id="rt" type="range" min="0" max="1" step="1" value="${location.hostname.endsWith("vercel.app") ? "0" : "1"}" />
         <div class="smallNote" id="rtLabel">Включено: получаем обновления команд/графа по WebSocket.</div>
 
         <div class="divider"></div>

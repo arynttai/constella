@@ -13,6 +13,7 @@ const { importParticipantsCsv, importEdgesCsv, ImportRequestSchema } = require("
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8787;
 const ORIGIN = process.env.CORSELLA_ORIGIN || process.env.ORIGIN || "*";
+const SERVERLESS = Boolean(process.env.VERCEL) || process.env.SERVERLESS === "1";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -23,8 +24,8 @@ app.use(
   })
 );
 
-const httpServer = createServer(app);
-const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+const httpServer = SERVERLESS ? null : createServer(app);
+const wss = SERVERLESS ? null : new WebSocketServer({ server: httpServer, path: "/ws" });
 
 const store = createStore();
 const loaded = loadStore();
@@ -37,6 +38,7 @@ if (loaded?.dataset?.participants && loaded?.dataset?.edges) {
 }
 
 function broadcast(type, payload) {
+  if (!wss) return;
   const msg = JSON.stringify({ type, payload, ts: Date.now() });
   for (const client of wss.clients) {
     if (client.readyState === 1) client.send(msg);
@@ -181,30 +183,38 @@ app.get("/api/teams/current", (_req, res) => {
 });
 
 // ---- WebSocket ----
-wss.on("connection", (ws) => {
-  ws.send(JSON.stringify({ type: "hello", payload: { name: "Constella" }, ts: Date.now() }));
-  ws.send(JSON.stringify({ type: "graph.updated", payload: { reason: "snapshot" }, ts: Date.now() }));
-  ws.send(JSON.stringify({ type: "teams.updated", payload: { reason: "snapshot", result: store.getLastResult() }, ts: Date.now() }));
-});
+if (wss) {
+  wss.on("connection", (ws) => {
+    ws.send(JSON.stringify({ type: "hello", payload: { name: "Constella" }, ts: Date.now() }));
+    ws.send(JSON.stringify({ type: "graph.updated", payload: { reason: "snapshot" }, ts: Date.now() }));
+    ws.send(JSON.stringify({ type: "teams.updated", payload: { reason: "snapshot", result: store.getLastResult() }, ts: Date.now() }));
+  });
+}
 
 // ---- Demo real-time events ----
 const RT_MS = process.env.RT_MS ? Number(process.env.RT_MS) : 2500;
-setInterval(() => {
-  const dataset = store.getDataset();
-  const ev = applyRandomEvent(dataset);
-  if (ev) {
-    store.setDataset(dataset);
-    broadcast("graph.updated", ev);
-    recomputeAndBroadcast(ev.reason || "rt.event");
-  }
-}, RT_MS);
+if (!SERVERLESS) {
+  setInterval(() => {
+    const dataset = store.getDataset();
+    const ev = applyRandomEvent(dataset);
+    if (ev) {
+      store.setDataset(dataset);
+      broadcast("graph.updated", ev);
+      recomputeAndBroadcast(ev.reason || "rt.event");
+    }
+  }, RT_MS);
+}
 
 recomputeAndBroadcast("boot");
 
-httpServer.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[Constella] server listening on http://localhost:${PORT}`);
-  // eslint-disable-next-line no-console
-  console.log(`[Constella] ws on ws://localhost:${PORT}/ws`);
-});
+if (!SERVERLESS) {
+  httpServer.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[Constella] server listening on http://localhost:${PORT}`);
+    // eslint-disable-next-line no-console
+    console.log(`[Constella] ws on ws://localhost:${PORT}/ws`);
+  });
+}
+
+module.exports = app;
 
